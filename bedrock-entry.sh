@@ -153,41 +153,6 @@ if [[ ! -f "bedrock_server-${VERSION}" ]]; then
   mv bedrock_server "bedrock_server-${VERSION}"
 fi
 
-if [[ -n "$OPS" || -n "$MEMBERS" || -n "$VISITORS" ]]; then
-  echo "Updating permissions"
-  jq -n --arg ops "$OPS" --arg members "$MEMBERS" --arg visitors "$VISITORS" '[
-  [$ops      | split(",") | map({permission: "operator", xuid:.})],
-  [$members  | split(",") | map({permission: "member", xuid:.})],
-  [$visitors | split(",") | map({permission: "visitor", xuid:.})]
-  ]| flatten' > permissions.json
-fi
-
-if [[ -n "$ALLOW_LIST_USERS" || -n "$WHITE_LIST_USERS" ]]; then
-  allowListUsers=${ALLOW_LIST_USERS:-$WHITE_LIST_USERS}
-
-  if [[ "$allowListUsers" ]]; then
-    echo "Setting allow list"
-    if [[ "$allowListUsers" != *":"* ]]; then
-      jq -c -n --arg users "$allowListUsers" '$users | split(",") | map({"ignoresPlayerLimit":false,"name": .})' > "allowlist.json"
-    else
-      jq -c -n --arg users "$allowListUsers" '$users | split(",") | map(split(":") | {"ignoresPlayerLimit":false,"name": .[0], "xuid": .[1]})' > "allowlist.json"
-    fi
-    # activate server property to enable list usage
-    ALLOW_LIST=true
-  else
-    ALLOW_LIST=false
-    rm -f allowlist.json
-  fi
-fi
-
-# prevent issue with bind mounted server.properties which can not be moved (sed tries to move the file when '-i' is used)
-_SERVER_PROPERTIES=$(sed '/^white-list=.*/d' server.properties) #Removes white-list= line from server.properties
-echo "${_SERVER_PROPERTIES}" > server.properties
-export ALLOW_LIST
-
-# update server.properties with environment settings
-set-property --file server.properties --bulk /etc/bds-property-definitions.json
-
 export LD_LIBRARY_PATH=.
 
 echo "Starting Bedrock server..."

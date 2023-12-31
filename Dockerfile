@@ -59,7 +59,6 @@ RUN easy-add --var os=${TARGETOS} --var arch=${TARGETARCH}${TARGETVARIANT} \
 
 COPY *.sh /opt/
 
-COPY property-definitions.json /etc/bds-property-definitions.json
 COPY bin/* /usr/local/bin/
 
 # Available versions listed at
