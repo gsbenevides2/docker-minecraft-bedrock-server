@@ -27,6 +27,7 @@ RUN if [ "$TARGETARCH" = "arm64" ] ; then \
     fi
 
 EXPOSE 19132/udp
+EXPOSE 19133/udp
 
 VOLUME ["/data"]
 
