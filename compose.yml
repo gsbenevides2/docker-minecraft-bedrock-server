@@ -4,6 +4,7 @@ services:
   bds:
     container_name: bds
     build: .
+    restart: always
     environment:
       EULA: "TRUE"
     ports:
